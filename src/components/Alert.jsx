@@ -1,23 +1,37 @@
 /**
  * Alert Component
- * Reusable alert/notification component
+ * Reusable alert/notification component with auto-close support
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
-const Alert = ({ type = 'info', title, message, onClose, autoClose = true, duration = 5000 }) => {
+const Alert = ({ 
+  type = 'info', 
+  title, 
+  message, 
+  onClose,
+  autoClose = true, 
+  duration = 5000,
+  id
+}) => {
   const [isVisible, setIsVisible] = useState(true);
 
+  const handleClose = useCallback(() => {
+    setIsVisible(false);
+    if (onClose) {
+      setTimeout(() => onClose(id), 100); // Delay to allow fade animation
+    }
+  }, [onClose, id]);
+
   useEffect(() => {
-    if (!autoClose) return;
+    if (!autoClose || !isVisible) return;
 
     const timer = setTimeout(() => {
-      setIsVisible(false);
-      onClose?.();
+      handleClose();
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [autoClose, duration, onClose]);
+  }, [autoClose, duration, isVisible, handleClose]);
 
   if (!isVisible) return null;
 
