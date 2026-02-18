@@ -3,6 +3,7 @@
  */
 import React, { useState } from "react";
 import { useFetch } from "../hooks/useApi";
+import { useLanguage } from "../i18n/LanguageContext";
 import customerService from "../services/customerService";
 import { mockData } from "../utils/mockDataService";
 import Modal from "../components/Modal";
@@ -29,6 +30,7 @@ const UserIcon = () => (
 const EMPTY = { name:"", email:"", phone:"", address:"", city:"", state:"", pincode:"", notes:"" };
 
 const CustomersPage = () => {
+  const { t } = useLanguage();
   const [isModalOpen,      setIsModalOpen]      = useState(false);
   const [editingCustomer,  setEditingCustomer]  = useState(null);
   const [formData,         setFormData]         = useState(EMPTY);
@@ -106,19 +108,19 @@ const CustomersPage = () => {
 
       <div className="pg__topbar">
         <div>
-          <h1 className="pg__title">Customers</h1>
-          <p className="pg__subtitle">{(customers || []).length} total customers</p>
+          <h1 className="pg__title">{t('customers.title')}</h1>
+          <p className="pg__subtitle">{(customers || []).length} {t('customers.totalCustomers').toLowerCase()}</p>
         </div>
         <button className="btn-primary" onClick={() => openModal()}>
-          <PlusIcon/> New Customer
+          <PlusIcon/> {t('customers.addCustomer')}
         </button>
       </div>
 
       <div className="kpi-strip">
         {[
-          { label:"Total Customers", value:(customers||[]).length,                                                                color:"#4f8ef7" },
-          { label:"Active",          value:(customers||[]).filter(c=>c.status!=="inactive").length,                               color:"#34c98a" },
-          { label:"Cities Covered",  value:[...new Set((customers||[]).map(c=>c.city).filter(Boolean))].length,                  color:"#9b6cf7" },
+          { label:t('customers.totalCustomers'), value:(customers||[]).length,                                                                color:"#4f8ef7" },
+          { label:t('customers.activeCustomers'),  value:(customers||[]).filter(c=>c.status!=="inactive").length,                               color:"#34c98a" },
+          { label:"Cities Covered",                value:[...new Set((customers||[]).map(c=>c.city).filter(Boolean))].length,                  color:"#9b6cf7" },
         ].map((k,i) => (
           <div key={i} className="kpi">
             <div className="kpi__icon" style={{ background:k.color+"18", color:k.color }}><UserIcon/></div>
@@ -135,7 +137,7 @@ const CustomersPage = () => {
           <div className="dt-toolbar">
             <div className="dt-search">
               <SearchIcon/>
-              <input placeholder="Search customers" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder={t('common.search') + ' ' + t('customers.title').toLowerCase()} value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
             <span className="dt-count">{filtered.length} record{filtered.length!==1?"s":""}</span>
           </div>
@@ -146,7 +148,7 @@ const CustomersPage = () => {
           ) : (
             <table>
               <thead>
-                <tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Status</th><th>Actions</th></tr>
+                <tr><th>{t('common.name')}</th><th>{t('common.email')}</th><th>{t('common.phone')}</th><th>{t('common.city')}</th><th>{t('common.status')}</th><th>{t('common.actions')}</th></tr>
               </thead>
               <tbody>
                 {filtered.map(c => (
@@ -161,8 +163,8 @@ const CustomersPage = () => {
                       </span>
                     </td>
                     <td>
-                      <button className="tbl-action tbl-action--blue"  onClick={() => openModal(c)}>Edit</button>
-                      <button className="tbl-action tbl-action--red"   onClick={() => handleDelete(c.id)}>Delete</button>
+                      <button className="tbl-action tbl-action--blue"  onClick={() => openModal(c)}>{t('common.edit')}</button>
+                      <button className="tbl-action tbl-action--red"   onClick={() => handleDelete(c.id)}>{t('common.delete')}</button>
                     </td>
                   </tr>
                 ))}
@@ -172,11 +174,11 @@ const CustomersPage = () => {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} title={editingCustomer?"Edit Customer":"New Customer"} onClose={closeModal} size="lg"
+      <Modal isOpen={isModalOpen} title={editingCustomer ? t('customers.editCustomer') : t('customers.addCustomer')} onClose={closeModal} size="lg"
         footer={<>
-          <Button variant="secondary" onClick={closeModal}>Cancel</Button>
+          <Button variant="secondary" onClick={closeModal}>{t('common.cancel')}</Button>
           <Button variant="primary" onClick={handleSubmit} loading={isSubmitting} disabled={isSubmitting}>
-            {editingCustomer?"Update":"Create"}
+            {editingCustomer ? t('common.save') : t('common.add')}
           </Button>
         </>}
       >

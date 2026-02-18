@@ -3,6 +3,7 @@
  */
 import React, { useState } from "react";
 import { useFetch } from "../hooks/useApi";
+import { useLanguage } from "../i18n/LanguageContext";
 import inventoryService from "../services/inventoryService";
 import barcodeService from "../services/barcodeService";
 import { mockData } from "../utils/mockDataService";
@@ -43,6 +44,7 @@ const statusClass = (s) => {
 };
 
 const InventoryPage = () => {
+  const { t } = useLanguage();
   const [isModalOpen,  setIsModalOpen]  = useState(false);
   const [editingItem,  setEditingItem]  = useState(null);
   const [formData,     setFormData]     = useState(EMPTY);
@@ -141,20 +143,20 @@ const InventoryPage = () => {
 
       <div className="pg__topbar">
         <div>
-          <h1 className="pg__title">Inventory</h1>
-          <p className="pg__subtitle">Equipment and tool stock management</p>
+          <h1 className="pg__title">{t('inventory.title')}</h1>
+          <p className="pg__subtitle">{t('inventory.manage')}</p>
         </div>
         <button className="btn-primary" onClick={() => openModal()}>
-          <PlusIcon/> Add Equipment
+          <PlusIcon/> {t('inventory.addItem')}
         </button>
       </div>
 
       <div className="kpi-strip">
         {[
-          { label:"Total Items",  value:(equipment||[]).length, color:"#4f8ef7" },
-          { label:"Available",    value:avail,                  color:"#34c98a" },
-          { label:"Currently Rented", value:rented,            color:"#9b6cf7" },
-          { label:"Low Stock",    value:low,                    color:"#ef4444" },
+          { label:t('inventory.totalItems'),       value:(equipment||[]).length, color:"#4f8ef7" },
+          { label:t('inventory.availableItems'),    value:avail,                  color:"#34c98a" },
+          { label:t('inventory.rentedItems'),       value:rented,                 color:"#9b6cf7" },
+          { label:t('inventory.lowStock') || t('common.lowStock'), value:low, color:"#ef4444" },
         ].map((k,i) => (
           <div key={i} className="kpi">
             <div className="kpi__icon" style={{ background:k.color+"18", color:k.color }}>
@@ -182,7 +184,7 @@ const InventoryPage = () => {
           <div className="dt-toolbar">
             <div className="dt-search">
               <SearchIcon/>
-              <input placeholder="Search equipment" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder={t('common.search') + ' ' + t('inventory.itemName').toLowerCase()} value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
             <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
               {["all", ...cats].map(c => (
@@ -195,7 +197,7 @@ const InventoryPage = () => {
                     borderColor: catFilter===c ? "#4f8ef7" : "#e2e8f0",
                     transition:"all 0.15s",
                   }}
-                >{c==="all"?"All":c}</button>
+                >{c==="all" ? t('common.all') : c}</button>
               ))}
             </div>
             <span className="dt-count">{filtered.length} item{filtered.length!==1?"s":""}</span>
@@ -208,8 +210,8 @@ const InventoryPage = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Name</th><th>Category</th><th>Qty</th>
-                  <th>Min Stock</th><th>Rental Rate</th><th>Status</th><th>Actions</th>
+                  <th>{t('common.name')}</th><th>{t('inventory.category')}</th><th>Qty</th>
+                  <th>Min Stock</th><th>{t('inventory.purchasePrice')}</th><th>{t('common.status')}</th><th>{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,9 +229,9 @@ const InventoryPage = () => {
                       <td style={{ fontWeight:600 }}>₹{Number(item.rentalRate||0).toLocaleString("en-IN")}/day</td>
                       <td><span className={`badge ${statusClass(item.status)}`}>{item.status||"available"}</span></td>
                       <td>
-                        <button className="tbl-action tbl-action--blue"   onClick={() => openModal(item)}>Edit</button>
-                        <button className="tbl-action tbl-action--green"  onClick={() => handleBarcode(item)}>Barcode</button>
-                        <button className="tbl-action tbl-action--red"    onClick={() => handleDelete(item.id)}>Delete</button>
+                        <button className="tbl-action tbl-action--blue"   onClick={() => openModal(item)}>{t('common.edit')}</button>
+                        <button className="tbl-action tbl-action--green"  onClick={() => handleBarcode(item)}>{t('inventory.barcode')}</button>
+                        <button className="tbl-action tbl-action--red"    onClick={() => handleDelete(item.id)}>{t('common.delete')}</button>
                       </td>
                     </tr>
                   );
@@ -240,11 +242,11 @@ const InventoryPage = () => {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} title={editingItem?"Edit Equipment":"Add Equipment"} onClose={closeModal} size="lg"
+      <Modal isOpen={isModalOpen} title={editingItem ? t('inventory.addItem') : t('inventory.addItem')} onClose={closeModal} size="lg"
         footer={<>
-          <Button variant="secondary" onClick={closeModal}>Cancel</Button>
+          <Button variant="secondary" onClick={closeModal}>{t('common.cancel')}</Button>
           <Button variant="primary" onClick={handleSubmit} loading={isSubmitting} disabled={isSubmitting}>
-            {editingItem?"Update":"Add"}
+            {editingItem ? t('common.save') : t('common.add')}
           </Button>
         </>}
       >

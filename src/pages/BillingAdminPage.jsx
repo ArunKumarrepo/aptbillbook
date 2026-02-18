@@ -3,6 +3,7 @@
  */
 import React, { useState } from "react";
 import { useFetch } from "../hooks/useApi";
+import { useLanguage } from "../i18n/LanguageContext";
 import billingService from "../services/billingService";
 import rentalService from "../services/rentalService";
 import barcodeService from "../services/barcodeService";
@@ -38,6 +39,7 @@ const statusClass = (s) => {
 };
 
 const BillingAdminPage = () => {
+  const { t } = useLanguage();
   const [isModalOpen,        setIsModalOpen]        = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedInvoice,    setSelectedInvoice]    = useState(null);
@@ -128,10 +130,10 @@ const BillingAdminPage = () => {
   );
 
   const summaryItems = [
-    { label:"Total Outstanding", value:`₹${(summaryData?.totalOutstanding||0).toLocaleString("en-IN")}`, color:"#f5a623" },
-    { label:"Total Collected",   value:`₹${(summaryData?.totalPaid||0).toLocaleString("en-IN")}`,         color:"#34c98a" },
-    { label:"Overdue Amount",    value:`₹${(summaryData?.overdueAmount||0).toLocaleString("en-IN")}`,      color:"#ef4444" },
-    { label:"Total Invoices",    value:(invoices||[]).length,                                              color:"#4f8ef7" },
+    { label:t('billing.outstanding'), value:`₹${(summaryData?.totalOutstanding||0).toLocaleString("en-IN")}`, color:"#f5a623" },
+    { label:t('billing.collected'),   value:`₹${(summaryData?.totalPaid||0).toLocaleString("en-IN")}`,         color:"#34c98a" },
+    { label:t('billing.overdueCount'),value:`₹${(summaryData?.overdueAmount||0).toLocaleString("en-IN")}`,      color:"#ef4444" },
+    { label:t('billing.invoiceNo'),   value:(invoices||[]).length,                                              color:"#4f8ef7" },
   ];
 
   return (
@@ -144,11 +146,11 @@ const BillingAdminPage = () => {
 
       <div className="pg__topbar">
         <div>
-          <h1 className="pg__title">Billing & Accounting</h1>
-          <p className="pg__subtitle">Manage invoices and payment collections</p>
+          <h1 className="pg__title">{t('billing.manage')}</h1>
+          <p className="pg__subtitle">{t('billing.title')}</p>
         </div>
         <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-          <PlusIcon/> New Invoice
+          <PlusIcon/> {t('billing.createInvoice')}
         </button>
       </div>
 
@@ -188,7 +190,7 @@ const BillingAdminPage = () => {
           <div className="dt-toolbar">
             <div className="dt-search">
               <SearchIcon/>
-              <input placeholder="Search by invoice #, customer" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder={t('billing.invoiceNo') + ', ' + t('billing.customer') + '...'} value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
             <span className="dt-count">{filtered.length} invoice{filtered.length!==1?"s":""}</span>
           </div>
@@ -200,8 +202,8 @@ const BillingAdminPage = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Invoice #</th><th>Customer</th><th>Amount</th>
-                  <th>Paid</th><th>Balance</th><th>Date</th><th>Status</th><th>Actions</th>
+                  <th>{t('billing.invoiceNo')}</th><th>{t('billing.customer')}</th><th>{t('common.amount')}</th>
+                  <th>{t('common.paid')}</th><th>Balance</th><th>{t('common.date')}</th><th>{t('common.status')}</th><th>{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,11 +217,11 @@ const BillingAdminPage = () => {
                     <td style={{ color:"#64748b", fontSize:12 }}>{inv.invoiceDate||"—"}</td>
                     <td><span className={`badge ${statusClass(inv.status)}`}>{inv.status||"pending"}</span></td>
                     <td>
-                      <button className="tbl-action tbl-action--green" onClick={() => handlePrint(inv.id)}>Print</button>
+                      <button className="tbl-action tbl-action--green" onClick={() => handlePrint(inv.id)}>{t('common.print')}</button>
                       {inv.status !== "paid" && (
                         <>
-                          <button className="tbl-action tbl-action--blue" onClick={() => { setSelectedInvoice(inv); setIsPaymentModalOpen(true); }}>Pay</button>
-                          <button className="tbl-action tbl-action--orange" onClick={() => handleReminder(inv.id)}>Remind</button>
+                          <button className="tbl-action tbl-action--blue" onClick={() => { setSelectedInvoice(inv); setIsPaymentModalOpen(true); }}>{t('common.pay')}</button>
+                          <button className="tbl-action tbl-action--orange" onClick={() => handleReminder(inv.id)}>{t('common.remind')}</button>
                         </>
                       )}
                     </td>
@@ -232,10 +234,10 @@ const BillingAdminPage = () => {
       )}
 
       {/* Create Invoice Modal */}
-      <Modal isOpen={isModalOpen} title="Create Invoice" onClose={() => setIsModalOpen(false)} size="lg"
+      <Modal isOpen={isModalOpen} title={t('billing.createInvoice')} onClose={() => setIsModalOpen(false)} size="lg"
         footer={<>
-          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-          <Button form="createInvoiceForm" variant="primary" loading={isSubmitting} disabled={isSubmitting}>Create Invoice</Button>
+          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
+          <Button form="createInvoiceForm" variant="primary" loading={isSubmitting} disabled={isSubmitting}>{t('billing.createInvoice')}</Button>
         </>}
       >
         <form id="createInvoiceForm" onSubmit={handleCreateInvoice} style={{ display:"flex", flexDirection:"column", gap:"14px" }}>
@@ -256,7 +258,7 @@ const BillingAdminPage = () => {
       {/* Payment Modal */}
       <Modal isOpen={isPaymentModalOpen} title="Record Payment" onClose={() => setIsPaymentModalOpen(false)} size="md"
         footer={<>
-          <Button variant="secondary" onClick={() => setIsPaymentModalOpen(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setIsPaymentModalOpen(false)}>{t('common.cancel')}</Button>
           <Button form="paymentForm" variant="primary" loading={isSubmitting} disabled={isSubmitting}>Record Payment</Button>
         </>}
       >

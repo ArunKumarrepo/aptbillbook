@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 /* ── SVG icon set (inline, no external deps) ── */
 const icons = {
@@ -79,12 +80,21 @@ const icons = {
       <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
     </svg>
   ),
+  barcode: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9V5a2 2 0 0 1 2-2h4"/><path d="M3 15v4a2 2 0 0 0 2 2h4"/>
+      <path d="M21 9V5a2 2 0 0 0-2-2h-4"/><path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+      <line x1="7" y1="8" x2="7" y2="16"/><line x1="10" y1="8" x2="10" y2="16"/>
+      <line x1="13" y1="8" x2="13" y2="16"/><line x1="16" y1="8" x2="16" y2="16"/>
+    </svg>
+  ),
 };
 
 const Layout = ({ children, currentPage = 'admin-dashboard', userRole = 'admin' }) => {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const sidebarRef = useRef(null);
+  const { t, language, changeLanguage } = useLanguage();
 
   // Determine if viewport is below the tablet/desktop breakpoint
   // Using a ref so we can read it in event handlers without stale closure issues
@@ -92,19 +102,20 @@ const Layout = ({ children, currentPage = 'admin-dashboard', userRole = 'admin' 
 
   const menuItems = {
     admin: [
-      { id: 'admin-dashboard', label: 'Dashboard',  icon: icons.dashboard,  accentColor: '#4f8ef7' },
-      { id: 'customers',       label: 'Customers',   icon: icons.customers,  accentColor: '#34c98a' },
-      { id: 'rentals',         label: 'Rentals',     icon: icons.rentals,    accentColor: '#f5a623' },
-      { id: 'inventory',       label: 'Inventory',   icon: icons.inventory,  accentColor: '#9b6cf7' },
-      { id: 'billing',         label: 'Billing',     icon: icons.billing,    accentColor: '#f76d6d' },
-      { id: 'analytics',       label: 'Analytics',   icon: icons.analytics,  accentColor: '#20c9d3' },
-      { id: 'settings',        label: 'Settings',    icon: icons.settings,   accentColor: '#8ea4c8' },
+      { id: 'admin-dashboard', labelKey: 'nav.dashboard', icon: icons.dashboard,  accentColor: '#4f8ef7' },
+      { id: 'customers',       labelKey: 'nav.customers', icon: icons.customers,  accentColor: '#34c98a' },
+      { id: 'rentals',         labelKey: 'nav.rentals',   icon: icons.rentals,    accentColor: '#f5a623' },
+      { id: 'inventory',       labelKey: 'nav.inventory', icon: icons.inventory,  accentColor: '#9b6cf7' },
+      { id: 'billing',         labelKey: 'nav.billing',   icon: icons.billing,    accentColor: '#f76d6d' },
+      { id: 'barcode-rental',  labelKey: 'nav.barcodeRental', icon: icons.barcode, accentColor: '#f5a623' },
+      { id: 'analytics',       labelKey: 'nav.analytics', icon: icons.analytics,  accentColor: '#20c9d3' },
+      { id: 'settings',        labelKey: 'nav.settings',  icon: icons.settings,   accentColor: '#8ea4c8' },
     ],
     customer: [
-      { id: 'customer-portal', label: 'Dashboard',   icon: icons.dashboard,  accentColor: '#4f8ef7' },
-      { id: 'my-rentals',      label: 'My Rentals',  icon: icons.rentals,    accentColor: '#f5a623' },
-      { id: 'invoices',        label: 'Invoices',    icon: icons.billing,    accentColor: '#f76d6d' },
-      { id: 'profile',         label: 'Profile',     icon: icons.customers,  accentColor: '#34c98a' },
+      { id: 'customer-portal', labelKey: 'nav.dashboard', icon: icons.dashboard,  accentColor: '#4f8ef7' },
+      { id: 'my-rentals',      labelKey: 'nav.myRentals', icon: icons.rentals,    accentColor: '#f5a623' },
+      { id: 'invoices',        labelKey: 'nav.invoices',  icon: icons.billing,    accentColor: '#f76d6d' },
+      { id: 'profile',         labelKey: 'nav.customers', icon: icons.customers,  accentColor: '#34c98a' },
     ],
   };
 
@@ -201,7 +212,7 @@ const Layout = ({ children, currentPage = 'admin-dashboard', userRole = 'admin' 
                 className={`apter-nav__item${isActive ? ' apter-nav__item--active' : ''}${isHovered && !isActive ? ' apter-nav__item--hovered' : ''}`}
                 role="menuitem"
                 aria-current={isActive ? 'page' : undefined}
-                title={!sidebarOpen ? item.label : ''}
+                title={!sidebarOpen ? t(item.labelKey) : ''}
               >
                 <div
                   className="apter-nav__icon"
@@ -212,7 +223,7 @@ const Layout = ({ children, currentPage = 'admin-dashboard', userRole = 'admin' 
 
                 {sidebarOpen && (
                   <span className={`apter-nav__label${isActive ? ' apter-nav__label--active' : ''}`}>
-                    {item.label}
+                    {t(item.labelKey)}
                   </span>
                 )}
 
@@ -273,9 +284,29 @@ const Layout = ({ children, currentPage = 'admin-dashboard', userRole = 'admin' 
               <span className="apter-search__icon">{icons.search}</span>
               <input
                 type="text"
-                placeholder="Search anything..."
+                placeholder={t('common.searchPlaceholder')}
                 className="apter-search__input"
               />
+            </div>
+
+            {/* Language toggle */}
+            <div className="apter-lang-toggle" role="group" aria-label="Language selector">
+              <button
+                className={`apter-lang-btn${language === 'en' ? ' apter-lang-btn--active' : ''}`}
+                onClick={() => changeLanguage('en')}
+                aria-pressed={language === 'en'}
+                title="English"
+              >
+                EN
+              </button>
+              <button
+                className={`apter-lang-btn${language === 'ta' ? ' apter-lang-btn--active' : ''}`}
+                onClick={() => changeLanguage('ta')}
+                aria-pressed={language === 'ta'}
+                title="தமிழ்"
+              >
+                த
+              </button>
             </div>
 
             {/* Divider */}
@@ -592,6 +623,39 @@ const Layout = ({ children, currentPage = 'admin-dashboard', userRole = 'admin' 
         .apter-profile__info { display: flex; flex-direction: column; }
         .apter-profile__name { font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.2; }
         .apter-profile__role { font-size: 11px; color: #94a3b8; }
+
+        /* ── Language toggle ── */
+        .apter-lang-toggle {
+          display: flex;
+          align-items: center;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          border-radius: 7px;
+          padding: 2px;
+          gap: 2px;
+          flex-shrink: 0;
+        }
+        .apter-lang-btn {
+          padding: 4px 10px;
+          border-radius: 5px;
+          border: none;
+          background: transparent;
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.18s ease;
+          line-height: 1.4;
+        }
+        .apter-lang-btn:hover:not(.apter-lang-btn--active) {
+          background: #e2e8f0;
+          color: #334155;
+        }
+        .apter-lang-btn--active {
+          background: #4f8ef7;
+          color: #ffffff;
+          box-shadow: 0 1px 4px rgba(79,142,247,0.25);
+        }
 
         /* ── Content ── */
         .apter-content {

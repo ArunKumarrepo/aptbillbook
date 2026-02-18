@@ -25,6 +25,7 @@ import InventoryPage from './pages/InventoryPage';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import CustomerPortal from './pages/CustomerPortal';
 import TestDashboard from './pages/TestDashboard';
+import BarcodeRentalPage from './pages/BarcodeRentalPage';
 
 // Import components
 import Layout from './components/Layout';
@@ -79,6 +80,7 @@ function App() {
         'inventory': <InventoryPage />,
         'analytics': <AnalyticsDashboard />,
         'customer-portal': <CustomerPortal customerId="1" />,
+        'barcode-rental': <BarcodeRentalPage />,
       };
 
       return pages[currentPage] || <AdminDashboard />;

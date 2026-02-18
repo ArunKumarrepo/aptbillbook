@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { useFetch } from '../hooks/useApi';
+import { useLanguage } from '../i18n/LanguageContext';
 import analyticsService from '../services/analyticsService';
 import rentalService from '../services/rentalService';
 import billingService from '../services/billingService';
@@ -53,6 +54,7 @@ const Icon = {
 };
 
 const AdminDashboard = () => {
+  const { t } = useLanguage();
   const [alerts, setAlerts] = useState([]);
   const [timeRange, setTimeRange] = useState('month');
 
@@ -182,7 +184,7 @@ const AdminDashboard = () => {
       {/* ₹”€₹”€ Page header ₹”€₹”€ */}
       <div className="dash__topbar">
         <div>
-          <h1 className="dash__title">Business Overview</h1>
+          <h1 className="dash__title">{t('dashboard.overview')}</h1>
           <p className="dash__subtitle">
             {new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
           </p>
@@ -198,10 +200,10 @@ const AdminDashboard = () => {
 
       {/* ₹”€₹”€ KPI Cards ₹”€₹”€ */}
       <div className="dash__kpis">
-        <KpiCard label="Total Revenue"     value={`₹${(dashboardData?.totalRevenue   || 0).toLocaleString('en-IN')}`} change={dashboardData?.revenueTrend}  icon={Icon.revenue}   accent="#4f8ef7"/>
-        <KpiCard label="Active Rentals"    value={rentalStats?.active || 0}                                             change={rentalStats?.trend}           icon={Icon.rentals}   accent="#34c98a"/>
-        <KpiCard label="Pending Payments"  value={`₹${(dashboardData?.pendingPayments|| 0).toLocaleString('en-IN')}`}                                         icon={Icon.pending}   accent="#f5a623"/>
-        <KpiCard label="Total Customers"   value={dashboardData?.totalCustomers || 0}                                   change={dashboardData?.customerTrend} icon={Icon.customers} accent="#9b6cf7"/>
+        <KpiCard label={t('dashboard.revenue')}       value={`₹${(dashboardData?.totalRevenue   || 0).toLocaleString('en-IN')}`} change={dashboardData?.revenueTrend}  icon={Icon.revenue}   accent="#4f8ef7"/>
+        <KpiCard label={t('dashboard.activeRentals')}  value={rentalStats?.active || 0}                                             change={rentalStats?.trend}           icon={Icon.rentals}   accent="#34c98a"/>
+        <KpiCard label={t('dashboard.pendingBills')}   value={`₹${(dashboardData?.pendingPayments|| 0).toLocaleString('en-IN')}`}                                         icon={Icon.pending}   accent="#f5a623"/>
+        <KpiCard label={t('dashboard.totalCustomers')} value={dashboardData?.totalCustomers || 0}                                   change={dashboardData?.customerTrend} icon={Icon.customers} accent="#9b6cf7"/>
       </div>
 
       {/* ₹”€₹”€ Charts row ₹”€₹”€ */}
@@ -210,7 +212,7 @@ const AdminDashboard = () => {
         <div className="dash-card dash-card--chart">
           <div className="dash-card__head">
             <div>
-              <h3 className="dash-card__title">Revenue Trend</h3>
+              <h3 className="dash-card__title">{t('dashboard.revenueChart')}</h3>
               <p className="dash-card__sub">Monthly performance this year</p>
             </div>
             <span className="dash-card__badge dash-card__badge--blue">This Year</span>
@@ -256,7 +258,7 @@ const AdminDashboard = () => {
             <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
               <span style={{ color:'#ef4444' }}>{Icon.warning}</span>
               <div>
-                <h3 className="dash-card__title">Overdue Invoices</h3>
+                <h3 className="dash-card__title">{t('dashboard.overdueInvoices')}</h3>
                 <p className="dash-card__sub">Requires immediate attention</p>
               </div>
             </div>
@@ -265,17 +267,17 @@ const AdminDashboard = () => {
 
           <div className="overdue-table">
             <div className="overdue-table__head">
-              <span>Customer</span>
-              <span>Invoice #</span>
-              <span>Amount</span>
-              <span>Status</span>
+              <span>{t('dashboard.customer')}</span>
+              <span>{t('dashboard.invoiceNo')}</span>
+              <span>{t('common.amount')}</span>
+              <span>{t('common.status')}</span>
             </div>
             {overdueData.slice(0, 5).map(inv => (
               <div key={inv.id} className="overdue-table__row">
                 <span className="overdue-table__customer">{inv.customerName}</span>
                 <span className="overdue-table__inv">{inv.invoiceNumber}</span>
                 <span className="overdue-table__amount">₹{Number(inv.amount).toLocaleString('en-IN')}</span>
-                <span className="overdue-badge">Overdue</span>
+                <span className="overdue-badge">{t('common.overdue')}</span>
               </div>
             ))}
           </div>

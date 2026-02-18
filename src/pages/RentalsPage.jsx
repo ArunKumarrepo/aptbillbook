@@ -3,6 +3,7 @@
  */
 import React, { useState } from "react";
 import { useFetch } from "../hooks/useApi";
+import { useLanguage } from "../i18n/LanguageContext";
 import rentalService from "../services/rentalService";
 import customerService from "../services/customerService";
 import inventoryService from "../services/inventoryService";
@@ -38,6 +39,7 @@ const statusClass = (s) => {
 };
 
 const RentalsPage = () => {
+  const { t } = useLanguage();
   const [isModalOpen,  setIsModalOpen]  = useState(false);
   const [editingRental, setEditingRental] = useState(null);
   const [formData,     setFormData]     = useState(EMPTY);
@@ -119,19 +121,19 @@ const RentalsPage = () => {
 
       <div className="pg__topbar">
         <div>
-          <h1 className="pg__title">Rentals</h1>
-          <p className="pg__subtitle">Track equipment rentals and returns</p>
+          <h1 className="pg__title">{t('rentals.title')}</h1>
+          <p className="pg__subtitle">{t('rentals.manage')}</p>
         </div>
         <button className="btn-primary" onClick={() => openModal()}>
-          <PlusIcon/> New Rental
+          <PlusIcon/> {t('rentals.addRental')}
         </button>
       </div>
 
       <div className="kpi-strip">
         {[
-          { label:"Total Rentals",  value:counts.total,   color:"#4f8ef7" },
-          { label:"Active",         value:counts.active,  color:"#34c98a" },
-          { label:"Returned",       value:counts.returned,color:"#9b6cf7" },
+          { label:t('rentals.totalRentals'),  value:counts.total,   color:"#4f8ef7" },
+          { label:t('rentals.activeRentals'),  value:counts.active,  color:"#34c98a" },
+          { label:t('rentals.statusReturned'), value:counts.returned,color:"#9b6cf7" },
         ].map((k,i) => (
           <div key={i} className="kpi">
             <div className="kpi__icon" style={{ background:k.color+"18", color:k.color }}><BoxIcon/></div>
@@ -148,7 +150,7 @@ const RentalsPage = () => {
           <div className="dt-toolbar">
             <div className="dt-search">
               <SearchIcon/>
-              <input placeholder="Search by rental #, customer, equipment" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder={t('rentals.rentalId') + ', ' + t('rentals.customer') + '...'} value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
             <span className="dt-count">{filtered.length} record{filtered.length!==1?"s":""}</span>
           </div>
@@ -160,8 +162,8 @@ const RentalsPage = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Rental #</th><th>Customer</th><th>Equipment</th>
-                  <th>Start</th><th>End</th><th>Rate</th><th>Status</th><th>Actions</th>
+                  <th>{t('rentals.rentalId')}</th><th>{t('rentals.customer')}</th><th>{t('rentals.equipment')}</th>
+                  <th>{t('rentals.startDate')}</th><th>{t('rentals.endDate')}</th><th>{t('rentals.dailyRate')}</th><th>{t('common.status')}</th><th>{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -177,9 +179,9 @@ const RentalsPage = () => {
                       <span className={`badge ${statusClass(r.status)}`}>{r.status||"pending"}</span>
                     </td>
                     <td>
-                      <button className="tbl-action tbl-action--blue" onClick={() => openModal(r)}>Edit</button>
+                      <button className="tbl-action tbl-action--blue" onClick={() => openModal(r)}>{t('common.edit')}</button>
                       {r.status !== "returned" && (
-                        <button className="tbl-action tbl-action--green" onClick={() => handleReturn(r.id)}>Return</button>
+                        <button className="tbl-action tbl-action--green" onClick={() => handleReturn(r.id)}>{t('common.return')}</button>
                       )}
                     </td>
                   </tr>
@@ -190,11 +192,11 @@ const RentalsPage = () => {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} title={editingRental?"Edit Rental":"New Rental"} onClose={closeModal} size="lg"
+      <Modal isOpen={isModalOpen} title={editingRental ? t('rentals.addRental') : t('rentals.addRental')} onClose={closeModal} size="lg"
         footer={<>
-          <Button variant="secondary" onClick={closeModal}>Cancel</Button>
+          <Button variant="secondary" onClick={closeModal}>{t('common.cancel')}</Button>
           <Button variant="primary" onClick={handleSubmit} loading={isSubmitting} disabled={isSubmitting}>
-            {editingRental?"Update":"Create"}
+            {editingRental ? t('common.save') : t('common.add')}
           </Button>
         </>}
       >
